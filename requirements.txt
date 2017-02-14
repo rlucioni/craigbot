@@ -1,0 +1,4 @@
+python-craigslist==1.0.3
+python-dateutil==2.6.0
+slackclient==1.0.5
+SQLAlchemy==1.1.5
