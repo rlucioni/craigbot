@@ -3,4 +3,3 @@ geopy==1.11.0
 python-craigslist==1.0.3
 slackclient==1.0.5
 SQLAlchemy==1.1.5
-tqdm==4.11.2

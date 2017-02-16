@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import logging
-from pprint import pprint
 from time import sleep
 
 from craigslist import CraigslistHousing
 from sqlalchemy import literal
-from tqdm import trange
 
 from apartments import settings
 from apartments.models import Listing, session
@@ -72,8 +70,6 @@ if __name__ == '__main__':
         hits = search_listings()
 
         logger.info(f'Search complete. [{len(hits)}] hit(s) found.')
-        pprint(hits)
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
-        for _ in trange(settings.REFRESH_INTERVAL):
-            sleep(1)
+        sleep(settings.REFRESH_INTERVAL)
