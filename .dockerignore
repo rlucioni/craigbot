@@ -3,5 +3,4 @@
 .gitignore
 .python-version
 apartments.db
-Dockerfile
 README.md

@@ -1,25 +1,16 @@
-.PHONY: image logs prune quality requirements run shell stop
+.DEFAULT_GOAL := run
 
-image:
-	docker build -t rlucioni/apartments:latest .
+.PHONY: quality requirements
 
-logs:
-	docker logs -f apartments
+include .docker/docker.mk
 
-prune:
-	docker system prune
+# Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
+help: ## Display this help message
+	@echo "Please run \`make <target>\` where <target> is one of"
+	@perl -nle'print $& if m{^[\.a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
 
-quality:
+quality: ## Run quality checks
 	flake8
 
-requirements:
+requirements: ## Install requirements
 	pip install -r requirements.txt
-
-run:
-	docker run -d --name apartments rlucioni/apartments
-
-shell:
-	docker exec -it apartments /bin/bash
-
-stop:
-	docker stop apartments
