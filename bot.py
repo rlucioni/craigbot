@@ -5,10 +5,12 @@ from time import sleep
 
 from craigslist import CraigslistHousing
 from sqlalchemy import literal
+from tqdm import trange
 
 from apartments import settings
 from apartments.models import Listing, session
 from apartments.utils import annotate
+
 
 logger = logging.getLogger(__name__)
 
@@ -73,4 +75,5 @@ if __name__ == '__main__':
         pprint(hits)
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
-        sleep(settings.REFRESH_INTERVAL)
+        for _ in trange(settings.REFRESH_INTERVAL):
+            sleep(1)

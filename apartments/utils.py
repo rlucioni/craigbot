@@ -81,6 +81,8 @@ def annotate(result):
     geotag = result['geotag']
     where = result['where']
 
+    # TODO: Support overlapping bounding boxes and tags shared across
+    # neighborhoods (e.g., 'mit' may be associated with Central and Kendall).
     if geotag:
         result['neighborhood'] = bounding_box(geotag)
         result['nearest_stop'] = nearest_stop(geotag)
