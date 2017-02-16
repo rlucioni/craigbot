@@ -59,10 +59,10 @@ TRANSPORTATION = {
     # Furthest acceptable distance from a public transportation stop, specified in miles.
     'max_distance': 1,
     'stops': {
-        'porter': (42.3841468, -71.12447),
-        'harvard': (42.3733705, -71.1211481),
-        'central': (42.3653208, -71.1055381),
-        'kendall': (42.3654375, -71.0949984),
+        'Porter': (42.3841468, -71.12447),
+        'Harvard': (42.3733705, -71.1211481),
+        'Central': (42.3653208, -71.1055381),
+        'Kendall': (42.3654375, -71.0949984),
     },
 }
 

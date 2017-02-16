@@ -86,5 +86,8 @@ def annotate(result):
     if geotag:
         result['neighborhood'] = bounding_box(geotag)
         result['nearest_stop'] = nearest_stop(geotag)
-    elif where:
+
+    # If the listing wasn't in one of the configured bounding boxes (or was missing
+    # coordinates), we may still be able to get something useful from the where label.
+    if not result.get('neighborhood') and where:
         result['neighborhood'] = normalized_neighborhood(where)
