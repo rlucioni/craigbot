@@ -7,4 +7,4 @@ WORKDIR /src
 
 RUN make requirements
 
-ENTRYPOINT ["./bot.py"]
+CMD ["./bot.py"]

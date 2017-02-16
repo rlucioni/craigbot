@@ -1,4 +1,4 @@
-.PHONY: image logs prune pull push run shell stop
+.PHONY: image logs prune pull push quality run shell stop
 
 image: ## Build an rlucioni/apartments image
 	docker build -f .docker/Dockerfile -t rlucioni/apartments:latest .
@@ -14,6 +14,9 @@ pull: ## Update the rlucioni/apartments image
 
 push: ## Push the rlucioni/apartments image to Docker Hub
 	docker push rlucioni/apartments
+
+quality: ## Run quality checks
+	docker run rlucioni/apartments flake8
 
 run: ## Start a container derived from the rlucioni/apartments image
 	docker run -d --name apartments rlucioni/apartments
