@@ -71,7 +71,7 @@ if __name__ == '__main__':
         logger.info('Searching Craigslist.')
         hits = search_listings()
 
-        logger.info(f'Search complete. There were [{len(hits)}] hits.')
+        logger.info(f'Search complete. [{len(hits)}] hit(s) found.')
         pprint(hits)
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
