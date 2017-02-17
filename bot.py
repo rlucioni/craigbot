@@ -7,7 +7,7 @@ from sqlalchemy import literal
 
 from apartments import settings
 from apartments.models import Listing, session
-from apartments.utils import annotate
+from apartments.utils import annotate, post_messages
 
 
 logger = logging.getLogger(__name__)
@@ -54,10 +54,7 @@ def search_listings():
             # If a neighborhood is present, the result is in a configured region
             # of interest.
             if result.get('neighborhood'):
-                nearest_stop = result.get('nearest_stop')
-                # Listings which don't include geotags won't include a nearest stop.
-                if nearest_stop is None or nearest_stop.distance <= settings.TRANSPORTATION['max_distance']:
-                    hits.append(result)
+                hits.append(result)
 
     return hits
 
@@ -70,6 +67,10 @@ if __name__ == '__main__':
         hits = search_listings()
 
         logger.info(f'Search complete. [{len(hits)}] hit(s) found.')
+
+        if hits:
+            logger.info('Posting to Slack.')
+            post_messages(hits)
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
         sleep(settings.REFRESH_INTERVAL)

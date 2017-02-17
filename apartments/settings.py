@@ -1,4 +1,5 @@
 from logging.config import dictConfig
+import os
 
 
 dictConfig({
@@ -56,8 +57,6 @@ NEIGHBORHOODS = {
 }
 
 TRANSPORTATION = {
-    # Furthest acceptable distance from a public transportation stop, specified in miles.
-    'max_distance': 1,
     'stops': {
         'Porter': (42.3841468, -71.12447),
         'Harvard': (42.3733705, -71.1211481),
@@ -65,6 +64,9 @@ TRANSPORTATION = {
         'Kendall': (42.3654375, -71.0949984),
     },
 }
+
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+SLACK_CHANNEL = '#apartments'
 
 # Seconds to sleep between searches.
 REFRESH_INTERVAL = 60 * 10

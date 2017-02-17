@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 from geopy.distance import vincenty
+from slackclient import SlackClient
 
 from apartments import settings
 
@@ -91,3 +92,37 @@ def annotate(result):
     # coordinates), we may still be able to get something useful from the where label.
     if not result.get('neighborhood') and where:
         result['neighborhood'] = normalized_neighborhood(where)
+
+
+def post_messages(listings):
+    """
+    Post the given messages to Slack.
+
+    Arguments:
+        listing (list): Dicts representing Craigslist listings.
+
+    Returns:
+        None
+    """
+    client = SlackClient(settings.SLACK_TOKEN)
+
+    for listing in listings:
+        price = listing['price']
+        neighborhood = listing['neighborhood']
+        nearest_stop = listing.get('nearest_stop')
+        url = listing['url']
+
+        message = f'{price} in {neighborhood}. '
+
+        if nearest_stop:
+            message += f'{nearest_stop.distance} miles from {nearest_stop.name} stop. '
+
+        message += f'{url}'
+
+        client.api_call(
+            'chat.postMessage',
+            channel=settings.SLACK_CHANNEL,
+            text=message,
+            username='craigbot',
+            icon_emoji=':robot_face:'
+        )
