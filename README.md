@@ -32,6 +32,8 @@ For information about additional Make targets:
 $ make help
 ```
 
+To deploy to DigitalOcean, see [this guide](https://docs.docker.com/machine/examples/ocean).
+
 ## Development
 
 Run quality checks:

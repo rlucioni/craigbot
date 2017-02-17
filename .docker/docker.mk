@@ -1,4 +1,7 @@
-.PHONY: image logs prune pull push quality run shell stop
+.PHONY: connect image logs prune pull push quality run shell stop
+
+connect: ## Connect to a Docker host running on a cloud service provider (e.g., DigitalOcean)
+	eval $(docker-machine env apartments)
 
 image: ## Build an rlucioni/apartments image
 	docker build -f .docker/Dockerfile -t rlucioni/apartments:latest .
