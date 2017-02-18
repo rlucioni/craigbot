@@ -27,7 +27,13 @@ def search_listings():
         'max_price': settings.PRICE['max'],
     }
 
-    housing = CraigslistHousing(**settings.CRAIGSLIST, filters=filters)
+    try:
+        # Initializing CraigslistHousing occasionally raises an exception.
+        housing = CraigslistHousing(**settings.CRAIGSLIST, filters=filters)
+    except:
+        logger.exception('Unable to initialize CraigslistHousing. Skipping.')
+        return
+
     result_generator = housing.get_results(limit=20, sort_by='newest', geotagged=True)
 
     hits = []
@@ -76,10 +82,10 @@ if __name__ == '__main__':
         logger.info('Searching Craigslist.')
         hits = search_listings()
 
-        logger.info(f'Search complete. [{len(hits)}] hit(s) found.')
+        logger.info('Search complete.')
 
         if hits:
-            logger.info('Posting to Slack.')
+            logger.info(f'[{len(hits)}] hit(s) found. Posting to Slack.')
             post_messages(hits)
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
