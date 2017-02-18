@@ -22,7 +22,7 @@ quality: ## Run quality checks
 	docker run rlucioni/apartments flake8
 
 run: ## Start a container derived from the rlucioni/apartments image
-	docker run -d --name apartments --env-file .docker/env rlucioni/apartments
+	docker run -d --name apartments --env-file .docker/env --restart on-failure rlucioni/apartments
 
 shell: ## Open a shell on a running container
 	docker exec -it apartments /bin/bash
