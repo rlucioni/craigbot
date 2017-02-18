@@ -28,10 +28,20 @@ def search_listings():
     }
 
     housing = CraigslistHousing(**settings.CRAIGSLIST, filters=filters)
-    results = housing.get_results(limit=20, sort_by='newest', geotagged=True)
+    result_generator = housing.get_results(limit=20, sort_by='newest', geotagged=True)
 
     hits = []
-    for result in results:
+    while True:
+        try:
+            # Calling next() causes a request to be made to Craigslist, which
+            # may in turn raise an exception.
+            result = next(result_generator)
+        except StopIteration:
+            break
+        except:
+            logger.exception('Unable to fetch a result. Skipping.')
+            continue
+
         craigslist_id = result['id']
 
         logger.info(f'Found listing [{craigslist_id}].')
