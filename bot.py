@@ -2,7 +2,6 @@
 import logging
 from time import sleep
 
-from craigslist import CraigslistHousing
 from sqlalchemy import literal
 
 from apartments import settings
@@ -28,7 +27,8 @@ def search_listings():
     }
 
     try:
-        # Initializing CraigslistHousing occasionally raises an exception.
+        # Importing and initializing CraigslistHousing occasionally raises an exception.
+        from craigslist import CraigslistHousing
         housing = CraigslistHousing(**settings.CRAIGSLIST, filters=filters)
     except:
         logger.exception('Unable to initialize CraigslistHousing. Skipping.')
