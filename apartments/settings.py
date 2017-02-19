@@ -69,4 +69,4 @@ SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
 SLACK_CHANNEL = '#apartments'
 
 # Seconds to sleep between searches.
-REFRESH_INTERVAL = 60 * 10
+REFRESH_INTERVAL = 60 * 20
