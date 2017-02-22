@@ -4,9 +4,9 @@ from time import sleep
 
 from sqlalchemy import literal
 
-from apartments import settings
-from apartments.models import Listing, session
-from apartments.utils import annotate, post_messages
+from craigbot import settings
+from craigbot.models import Listing, session
+from craigbot.utils import annotate, post_messages
 
 
 logger = logging.getLogger(__name__)

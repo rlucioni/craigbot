@@ -7,4 +7,4 @@ WORKDIR /src
 
 RUN make requirements
 
-CMD ["./bot.py"]
+CMD ["./run.py"]

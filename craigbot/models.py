@@ -16,7 +16,7 @@ class Listing(Base):
     url = Column(String, unique=True)
 
 
-engine = create_engine('sqlite:///apartments.db')
+engine = create_engine('sqlite:///craigbot.db')
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)

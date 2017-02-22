@@ -1,4 +1,4 @@
-# apartments
+# craigbot
 
 Bot for finding apartments on Craigslist.
 
@@ -12,7 +12,7 @@ With Docker installed and running, start the bot:
 $ make
 ```
 
-If the image doesn't exist locally, Docker will pull it from [Docker Hub](https://hub.docker.com/r/rlucioni/apartments/), create a container, and start it.
+If the image doesn't exist locally, Docker will pull it from [Docker Hub](https://hub.docker.com/r/rlucioni/craigbot/), create a container, and start it.
 
 Tail a running container's logs:
 

@@ -92,4 +92,4 @@ ENV/
 .DS_Store
 
 .docker/env
-apartments.db
+craigbot.db

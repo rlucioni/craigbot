@@ -3,5 +3,6 @@
 .git
 .gitignore
 .python-version
-apartments.db
+.travis*
+craigbot.db
 README.md

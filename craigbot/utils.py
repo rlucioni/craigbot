@@ -3,7 +3,7 @@ from collections import namedtuple
 from geopy.distance import vincenty
 from slackclient import SlackClient
 
-from apartments import settings
+from craigbot import settings
 
 
 Point = namedtuple('Point', ['latitude', 'longitude'])
