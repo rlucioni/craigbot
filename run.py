@@ -6,7 +6,7 @@ from sqlalchemy import literal
 
 from craigbot import settings
 from craigbot.models import Listing, session
-from craigbot.utils import annotate, post_messages
+from craigbot.utils import annotate, is_ip_banned, Slack
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,11 @@ def search_listings():
         from craigslist import CraigslistHousing
         housing = CraigslistHousing(**settings.CRAIGSLIST, filters=filters)
     except:
-        logger.exception('Unable to initialize CraigslistHousing. Skipping.')
+        logger.exception('Unable to initialize CraigslistHousing. Skipping and checking for IP ban.')
+
+        if is_ip_banned():
+            Slack().post_ip_ban_warning()
+
         return
 
     result_generator = housing.get_results(limit=20, sort_by='newest', geotagged=True)
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 
         if hits:
             logger.info(f'[{len(hits)}] hit(s) found. Posting to Slack.')
-            post_messages(hits)
+            Slack().post_listings(hits)
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
         sleep(settings.REFRESH_INTERVAL)

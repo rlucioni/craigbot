@@ -1,6 +1,8 @@
 from collections import namedtuple
+from functools import partial
 
 from geopy.distance import vincenty
+import requests
 from slackclient import SlackClient
 
 from craigbot import settings
@@ -94,35 +96,64 @@ def annotate(result):
         result['neighborhood'] = normalized_neighborhood(where)
 
 
-def post_messages(listings):
+def is_ip_banned():
     """
-    Post the given messages to Slack.
-
-    Arguments:
-        listing (list): Dicts representing Craigslist listings.
+    Check if the current IP has been banned.
 
     Returns:
-        None
+        Boolean
     """
-    client = SlackClient(settings.SLACK_TOKEN)
+    response = requests.get('https://www.craigslist.org')
 
-    for listing in listings:
-        price = listing['price']
-        neighborhood = listing['neighborhood']
-        nearest_stop = listing.get('nearest_stop')
-        url = listing['url']
+    # Craigslist responds to requests from banned IPs with a 403.
+    return response.status_code == 403
 
-        message = f'{price} in {neighborhood}. '
 
-        if nearest_stop:
-            message += f'{nearest_stop.distance} miles from {nearest_stop.name} stop. '
+class Slack:
+    """
+    Utility class for posting messages to a configured Slack channel.
+    """
+    def __init__(self):
+        client = SlackClient(settings.SLACK_TOKEN)
 
-        message += f'{url}'
-
-        client.api_call(
+        self.post_message = partial(
+            client.api_call,
             'chat.postMessage',
             channel=settings.SLACK_CHANNEL,
-            text=message,
             username='craigbot',
             icon_emoji=':robot_face:'
         )
+
+    def post_listings(self, listings):
+        """
+        Post one message for each listing to the channel.
+
+        Arguments:
+            listings (list): Containing dicts representing Craigslist listings.
+
+        Returns:
+            None
+        """
+        for listing in listings:
+            price = listing['price']
+            neighborhood = listing['neighborhood']
+            nearest_stop = listing.get('nearest_stop')
+            url = listing['url']
+
+            message = f'{price} in {neighborhood}. '
+
+            if nearest_stop:
+                message += f'{nearest_stop.distance} miles from {nearest_stop.name} stop. '
+
+            message += f'{url}'
+
+            self.post_message(text=message)
+
+    def post_ip_ban_warning(self):
+        """
+        Warn the channel that the bot's current IP has been banned.
+
+        Returns:
+            None
+        """
+        self.post_message(text='Help! Craigslist has banned my IP.')
