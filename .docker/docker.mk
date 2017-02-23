@@ -25,7 +25,7 @@ run: ## Start a container derived from the rlucioni/craigbot image
 	docker run -d --name craigbot --env-file .docker/env --restart on-failure rlucioni/craigbot
 
 shell: ## Open a shell on a running container
-	docker exec -it craigbot /bin/bash
+	docker exec -it craigbot /usr/bin/env bash
 
 stop: ## Stop a running container
 	docker stop craigbot
