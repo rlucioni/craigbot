@@ -67,6 +67,8 @@ TRANSPORTATION = {
 
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
 SLACK_CHANNEL = '#apartments'
+SLACK_USERNAME = 'craigbot'
+SLACK_ICON_URL = 'http://i.imgur.com/txH8qrZ.png'
 
 # Seconds to sleep between searches.
 REFRESH_INTERVAL = 60 * 20

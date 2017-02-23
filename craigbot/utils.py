@@ -120,8 +120,8 @@ class Slack:
             client.api_call,
             'chat.postMessage',
             channel=settings.SLACK_CHANNEL,
-            username='craigbot',
-            icon_emoji=':robot_face:'
+            username=settings.SLACK_USERNAME,
+            icon_url=settings.SLACK_ICON_URL
         )
 
     def post_listings(self, listings):
