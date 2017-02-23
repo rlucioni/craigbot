@@ -24,6 +24,7 @@ def search_listings():
     filters = {
         'min_price': settings.PRICE['min'],
         'max_price': settings.PRICE['max'],
+        'has_image': True,
     }
 
     try:
