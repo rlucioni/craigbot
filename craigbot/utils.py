@@ -13,8 +13,8 @@ from craigbot.models import Listing, session
 
 logger = logging.getLogger(__name__)
 
+POI = namedtuple('POI', ['name', 'distance'])
 Point = namedtuple('Point', ['latitude', 'longitude'])
-Stop = namedtuple('Stop', ['name', 'distance'])
 
 
 class Slack:
@@ -45,13 +45,14 @@ class Slack:
         for listing in listings:
             price = listing['price']
             neighborhood = listing['neighborhood']
-            nearest_stop = listing.get('nearest_stop')
+            nearest_points_of_interest = listing.get('nearest_points_of_interest')
             url = listing['url']
 
             message = f'{price} in {neighborhood}. '
 
-            if nearest_stop:
-                message += f'{nearest_stop.distance} miles from {nearest_stop.name} stop. '
+            if nearest_points_of_interest:
+                for poi in nearest_points_of_interest:
+                    message += f'{poi.distance} miles from {poi.name}. '
 
             message += f'{url}'
 
@@ -89,23 +90,30 @@ def bounding_box(geotag):
             return label
 
 
-def nearest_stop(geotag):
+def nearest_points_of_interest(geotag):
     """
-    Find the name and distance to the nearest public transportation stop.
+    Find the names and distances to the nearest points of interest.
 
     Arguments:
         geotag (tuple): Latitude and longitude.
 
     Returns:
-        Stop (namedtuple): Name of the nearest stop and the distance to it.
+        dict: Containing POI namedtuples.
     """
-    stops = []
-    for name, location in settings.TRANSPORTATION['stops'].items():
-        distance = vincenty(geotag, location).miles
-        distance = round(distance, 2)
-        stops.append(Stop(name, distance))
+    nearest_points_of_interest = []
 
-    return min(stops, key=lambda stop: stop.distance)
+    for location_map in settings.POINTS_OF_INTEREST:
+        pois = []
+
+        for name, coordinates in location_map.items():
+            distance = vincenty(geotag, coordinates).miles
+            distance = round(distance, 2)
+            pois.append(POI(name, distance))
+
+        nearest = min(pois, key=lambda poi: poi.distance)
+        nearest_points_of_interest.append(nearest)
+
+    return nearest_points_of_interest
 
 
 def normalized_neighborhood(where):
@@ -143,7 +151,7 @@ def annotate(result):
     # neighborhoods (e.g., 'mit' may be associated with Central and Kendall).
     if geotag:
         result['neighborhood'] = bounding_box(geotag)
-        result['nearest_stop'] = nearest_stop(geotag)
+        result['nearest_points_of_interest'] = nearest_points_of_interest(geotag)
 
     # If the listing wasn't in one of the configured bounding boxes (or was missing
     # coordinates), we may still be able to get something useful from the where label.
