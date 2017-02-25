@@ -32,31 +32,30 @@ class Slack:
             icon_url=settings.SLACK_ICON_URL
         )
 
-    def post_listings(self, listings):
+    def post_listing(self, listing):
         """
-        Post one message for each listing to the channel.
+        Post a message describing the provided listing to the configured channel.
 
         Arguments:
-            listings (list): Containing dicts representing Craigslist listings.
+            listing (dict): Representing an annotated Craigslist listing.
 
         Returns:
             None
         """
-        for listing in listings:
-            price = listing['price']
-            neighborhood = listing['neighborhood']
-            nearest_points_of_interest = listing.get('nearest_points_of_interest')
-            url = listing['url']
+        price = listing['price']
+        neighborhood = listing['neighborhood']
+        nearest_points_of_interest = listing.get('nearest_points_of_interest')
+        url = listing['url']
 
-            message = f'{price} in {neighborhood}. '
+        message = f'{price} in {neighborhood}. '
 
-            if nearest_points_of_interest:
-                for poi in nearest_points_of_interest:
-                    message += f'{poi.distance} miles from {poi.name}. '
+        if nearest_points_of_interest:
+            for poi in nearest_points_of_interest:
+                message += f'{poi.distance} miles from {poi.name}. '
 
-            message += f'{url}'
+        message += f'{url}'
 
-            self.post_message(text=message)
+        self.post_message(text=message)
 
     def post_ip_ban_warning(self):
         """
@@ -179,8 +178,10 @@ def search_listings():
     Writes all results to the database to avoid reporting duplicates.
 
     Returns:
-        list: Results matching configured search criteria.
+        int: Count of new results matching configured search criteria.
     """
+    slack = Slack()
+
     filters = {
         'min_price': settings.MIN_PRICE,
         'max_price': settings.MAX_PRICE,
@@ -196,7 +197,7 @@ def search_listings():
         logger.exception('Unable to initialize CraigslistHousing. Skipping and checking for IP ban.')
 
         if is_ip_banned():
-            Slack().post_ip_ban_warning()
+            slack.post_ip_ban_warning()
 
         return
 
@@ -206,7 +207,7 @@ def search_listings():
         geotagged=True
     )
 
-    hits = []
+    count = 0
     while True:
         try:
             # Calling next() causes a request to be made to Craigslist. This may
@@ -227,7 +228,7 @@ def search_listings():
         seen = session.query(literal(True)).filter(q.exists()).scalar()
 
         if not seen:
-            logger.info(f'Listing [{craigslist_id}] is new. Recording it.')
+            logger.info(f'Listing [{craigslist_id}] is new. Recording it and posting to Slack.')
 
             # Record the listing.
             listing = Listing(craigslist_id=craigslist_id, url=result['url'])
@@ -240,6 +241,7 @@ def search_listings():
             # If a neighborhood is present, the result is in a configured region
             # of interest.
             if result.get('neighborhood'):
-                hits.append(result)
+                count += 1
+                slack.post_listing(result)
 
-    return hits
+    return count

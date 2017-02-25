@@ -3,7 +3,7 @@ import logging
 from time import sleep
 
 from craigbot import settings
-from craigbot.utils import search_listings, Slack
+from craigbot.utils import search_listings
 
 
 logger = logging.getLogger(__name__)
@@ -20,13 +20,9 @@ if __name__ == '__main__':
 
     while True:
         logger.info('Searching Craigslist.')
-        hits = search_listings()
+        count = search_listings()
 
-        logger.info('Search complete.')
-
-        if hits:
-            logger.info(f'[{len(hits)}] hit(s) found. Posting to Slack.')
-            Slack().post_listings(hits)
+        logger.info(f'Search complete. [{count}] new listing(s) found.')
 
         logger.info(f'Sleeping for [{settings.REFRESH_INTERVAL}] seconds.')
         sleep(settings.REFRESH_INTERVAL)
