@@ -228,7 +228,7 @@ def search_listings():
         seen = session.query(literal(True)).filter(q.exists()).scalar()
 
         if not seen:
-            logger.info(f'Listing [{craigslist_id}] is new. Recording it and posting to Slack.')
+            logger.info(f'Listing [{craigslist_id}] is new. Recording it.')
 
             # Record the listing.
             listing = Listing(craigslist_id=craigslist_id, url=result['url'])
@@ -242,6 +242,8 @@ def search_listings():
             # of interest.
             if result.get('neighborhood'):
                 count += 1
+
+                logger.info(f'Posting listing [{craigslist_id}] to Slack.')
                 slack.post_listing(result)
 
     return count
