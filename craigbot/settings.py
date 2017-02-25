@@ -8,10 +8,12 @@ CRAIGSLIST = {
     'category': 'aap',
 }
 
-PRICE = {
-    'min': 1500,
-    'max': 2500,
-}
+# Price range used to filter listings.
+MIN_PRICE = 1500
+MAX_PRICE = 2500
+
+# Number of raw listings to fetch from Craigslist each time the bot runs.
+LISTING_LIMIT = 50
 
 # Create these using http://boundingbox.klokantech.com.
 # You can verify using https://www.mapcustomizer.com.

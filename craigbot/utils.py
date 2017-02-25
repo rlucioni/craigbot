@@ -1,15 +1,70 @@
 from collections import namedtuple
 from functools import partial
+import logging
 
 from geopy.distance import vincenty
 import requests
 from slackclient import SlackClient
+from sqlalchemy import literal
 
 from craigbot import settings
+from craigbot.models import Listing, session
 
+
+logger = logging.getLogger(__name__)
 
 Point = namedtuple('Point', ['latitude', 'longitude'])
 Stop = namedtuple('Stop', ['name', 'distance'])
+
+
+class Slack:
+    """
+    Utility class for posting messages to a configured Slack channel.
+    """
+    def __init__(self):
+        client = SlackClient(settings.SLACK_TOKEN)
+
+        self.post_message = partial(
+            client.api_call,
+            'chat.postMessage',
+            channel=settings.SLACK_CHANNEL,
+            username=settings.SLACK_USERNAME,
+            icon_url=settings.SLACK_ICON_URL
+        )
+
+    def post_listings(self, listings):
+        """
+        Post one message for each listing to the channel.
+
+        Arguments:
+            listings (list): Containing dicts representing Craigslist listings.
+
+        Returns:
+            None
+        """
+        for listing in listings:
+            price = listing['price']
+            neighborhood = listing['neighborhood']
+            nearest_stop = listing.get('nearest_stop')
+            url = listing['url']
+
+            message = f'{price} in {neighborhood}. '
+
+            if nearest_stop:
+                message += f'{nearest_stop.distance} miles from {nearest_stop.name} stop. '
+
+            message += f'{url}'
+
+            self.post_message(text=message)
+
+    def post_ip_ban_warning(self):
+        """
+        Warn the channel that the bot's current IP has been banned.
+
+        Returns:
+            None
+        """
+        self.post_message(text='Help! Craigslist has banned my IP.')
 
 
 def bounding_box(geotag):
@@ -109,51 +164,74 @@ def is_ip_banned():
     return response.status_code == 403
 
 
-class Slack:
+def search_listings():
     """
-    Utility class for posting messages to a configured Slack channel.
+    Search recent listings on Craigslist.
+
+    Writes all results to the database to avoid reporting duplicates.
+
+    Returns:
+        list: Results matching configured search criteria.
     """
-    def __init__(self):
-        client = SlackClient(settings.SLACK_TOKEN)
+    filters = {
+        'min_price': settings.MIN_PRICE,
+        'max_price': settings.MAX_PRICE,
+        'has_image': True,
+    }
 
-        self.post_message = partial(
-            client.api_call,
-            'chat.postMessage',
-            channel=settings.SLACK_CHANNEL,
-            username=settings.SLACK_USERNAME,
-            icon_url=settings.SLACK_ICON_URL
-        )
+    try:
+        # Importing and initializing CraigslistHousing involves making a request
+        # to Craigslist. This may raise an exception if the bot's IP is banned.
+        from craigslist import CraigslistHousing
+        housing = CraigslistHousing(**settings.CRAIGSLIST, filters=filters)
+    except:
+        logger.exception('Unable to initialize CraigslistHousing. Skipping and checking for IP ban.')
 
-    def post_listings(self, listings):
-        """
-        Post one message for each listing to the channel.
+        if is_ip_banned():
+            Slack().post_ip_ban_warning()
 
-        Arguments:
-            listings (list): Containing dicts representing Craigslist listings.
+        return
 
-        Returns:
-            None
-        """
-        for listing in listings:
-            price = listing['price']
-            neighborhood = listing['neighborhood']
-            nearest_stop = listing.get('nearest_stop')
-            url = listing['url']
+    result_generator = housing.get_results(
+        limit=settings.LISTING_LIMIT,
+        sort_by='newest',
+        geotagged=True
+    )
 
-            message = f'{price} in {neighborhood}. '
+    hits = []
+    while True:
+        try:
+            # Calling next() causes a request to be made to Craigslist. This may
+            # raise an exception if the bot's IP is banned.
+            result = next(result_generator)
+        except StopIteration:
+            break
+        except:
+            logger.exception('Unable to fetch a result. Skipping.')
+            continue
 
-            if nearest_stop:
-                message += f'{nearest_stop.distance} miles from {nearest_stop.name} stop. '
+        craigslist_id = result['id']
 
-            message += f'{url}'
+        logger.info(f'Found listing [{craigslist_id}].')
 
-            self.post_message(text=message)
+        # Check if we've seen this listing.
+        q = session.query(Listing).filter(Listing.craigslist_id == craigslist_id)
+        seen = session.query(literal(True)).filter(q.exists()).scalar()
 
-    def post_ip_ban_warning(self):
-        """
-        Warn the channel that the bot's current IP has been banned.
+        if not seen:
+            logger.info(f'Listing [{craigslist_id}] is new. Recording it.')
 
-        Returns:
-            None
-        """
-        self.post_message(text='Help! Craigslist has banned my IP.')
+            # Record the listing.
+            listing = Listing(craigslist_id=craigslist_id, url=result['url'])
+            session.add(listing)
+            session.commit()
+
+            # Annotate the result in-place.
+            annotate(result)
+
+            # If a neighborhood is present, the result is in a configured region
+            # of interest.
+            if result.get('neighborhood'):
+                hits.append(result)
+
+    return hits
