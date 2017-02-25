@@ -1,13 +1,22 @@
-.PHONY: connect image logs prune pull push quality run shell stop
+.PHONY: connect create image kill logs provision prune pull push quality run shell stop
 
-connect: ## Connect to a Docker host running on a cloud service provider (e.g., DigitalOcean)
+connect: ## Connect to a Docker host running on a DigitalOcean Droplet
 	eval $$(docker-machine env craigbot)
+
+create: ## Create a Droplet for hosting Craigbot
+	docker-machine create --driver digitalocean --digitalocean-access-token $$(cat ~/.digitalocean-access-token) craigbot
 
 image: ## Build an rlucioni/craigbot image
 	docker build -f .docker/Dockerfile -t rlucioni/craigbot:latest .
 
+kill: ## Stop and remove the Droplet hosting craigbot.
+	docker-machine stop craigbot && docker-machine rm craigbot
+
 logs: ## Tail a running container's logs
 	docker logs -f craigbot
+
+provision: ## Reprovision an existing craigbot machine
+	docker-machine provision craigbot
 
 prune: ## Delete stopped containers and dangling images
 	docker system prune
