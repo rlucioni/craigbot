@@ -4,7 +4,7 @@ Bot for finding apartments on Craigslist.
 
 ## Installation
 
-Start by creating a [Slack token](https://api.slack.com/docs/oauth-test-tokens). Put it in a new file, `.docker/env`; see `.docker/env.example` for an example.
+Start by creating a [Slack token](https://api.slack.com/docs/oauth-test-tokens). Put it in a new file, `.docker/env`. See `.docker/env.example` for an example. Other environment variables can be placed in this file to override default settings.
 
 With Docker installed and running, start the bot:
 
