@@ -13,7 +13,7 @@ MIN_PRICE = 1500
 MAX_PRICE = 2500
 
 # Number of raw listings to fetch from Craigslist each time the bot runs.
-LISTING_LIMIT = os.environ.get('LISTING_LIMIT', 20)
+LISTING_LIMIT = int(os.environ.get('LISTING_LIMIT', 20))
 
 # Create these using http://boundingbox.klokantech.com.
 # You can verify using https://www.mapcustomizer.com.
