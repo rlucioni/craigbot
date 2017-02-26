@@ -124,10 +124,17 @@ def normalized_neighborhood(where):
 
     Returns:
         str: Label of the matching neighborhood.
-        None: If no matching labels were found.
+        None: If the listing is ignored, or no matching labels were found.
     """
-    for label, fragments in settings.NEIGHBORHOODS.items():
-        if any(fragment in where.lower() for fragment in fragments):
+    where = where.lower()
+
+    is_ignored = any(string in where for string in settings.IGNORE)
+    if is_ignored:
+        return
+
+    for label, strings in settings.NEIGHBORHOODS.items():
+        is_match = any(string in where for string in strings)
+        if is_match:
             return label
 
 
@@ -180,6 +187,7 @@ def search_listings():
     Returns:
         int: Count of new results matching configured search criteria.
     """
+    count = 0
     slack = Slack()
 
     filters = {
@@ -199,7 +207,7 @@ def search_listings():
         if is_ip_banned():
             slack.post_ip_ban_warning()
 
-        return
+        return count
 
     result_generator = housing.get_results(
         limit=settings.LISTING_LIMIT,
@@ -207,7 +215,6 @@ def search_listings():
         geotagged=True
     )
 
-    count = 0
     while True:
         try:
             # Calling next() causes a request to be made to Craigslist. This may

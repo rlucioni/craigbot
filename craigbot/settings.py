@@ -33,6 +33,13 @@ NEIGHBORHOODS = {
     'Kendall Sq': ['kendall', 'mit'],
 }
 
+# If any of these strings appear in a listing's where label, ignore it.
+IGNORE = [
+    'allston',
+    'longwood',
+    'medical',
+]
+
 # Grouped points of interest (e.g., public transportation stops, grocery stores,
 # gyms) whose proximity we care about. If a listing has a geotag, the bot will find
 # the point nearest to it in each group.
