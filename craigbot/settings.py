@@ -9,8 +9,8 @@ CRAIGSLIST = {
 }
 
 # Price range used to filter listings.
-MIN_PRICE = 1500
-MAX_PRICE = 2500
+MIN_PRICE = int(os.environ.get('MIN_PRICE', 1500))
+MAX_PRICE = int(os.environ.get('MAX_PRICE', 2500))
 
 # Number of raw listings to fetch from Craigslist each time the bot runs.
 LISTING_LIMIT = int(os.environ.get('LISTING_LIMIT', 20))
