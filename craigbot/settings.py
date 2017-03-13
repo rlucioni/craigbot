@@ -18,16 +18,14 @@ LISTING_LIMIT = int(os.environ.get('LISTING_LIMIT', 20))
 # Create these using http://boundingbox.klokantech.com.
 # You can verify using https://www.mapcustomizer.com.
 BOUNDING_BOXES = {
-    'Central Sq': {
-        'bottom_left': (42.359475, -71.111831),
-        'top_right': (42.369441, -71.09563)
-    },
+    # 'Central Sq': {
+    #     'bottom_left': (42.359475, -71.111831),
+    #     'top_right': (42.369441, -71.09563)
+    # },
 }
 
 # Used to handle listings without coordinates.
 NEIGHBORHOODS = {
-    'Porter Sq': ['porter'],
-    'Harvard Sq': ['harvard'],
     'Central Sq': ['central'],
     'Cambridgeport': ['cambridgeport'],
     'Kendall Sq': ['kendall', 'mit'],
