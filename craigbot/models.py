@@ -7,8 +7,8 @@ from sqlalchemy.sql import func
 Base = declarative_base()
 
 
-class Listing(Base):
-    __tablename__ = 'listings'
+class Result(Base):
+    __tablename__ = 'results'
 
     id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime, server_default=func.now())

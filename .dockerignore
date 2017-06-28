@@ -1,8 +1,7 @@
-.docker/env
-.dockerignore
-.git
-.gitignore
-.python-version
-.travis*
-craigbot.db
-README.md
+*
+!craigbot
+!.flake8
+!Makefile
+!README.md
+!requirements.txt
+!run.py
