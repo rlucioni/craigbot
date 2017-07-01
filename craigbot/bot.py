@@ -75,7 +75,9 @@ class Bot:
                 logger.exception('There was a problem processing a result. Continuing.')
             finally:
                 count += 1
-                logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
+
+                if count <= settings.CRAIGSLIST_RESULT_COUNT:
+                    logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
 
     def save(self, result):
         """
