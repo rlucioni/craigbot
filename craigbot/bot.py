@@ -50,6 +50,8 @@ class Bot:
             if craigslist.is_ip_banned():
                 self.slack.post('Help! Craigslist has banned my IP.')
 
+            return
+
         # Craigslist seems to use pages of 120 results.
         logger.info(f'Found {len(results)} results.')
 
@@ -123,6 +125,7 @@ class Bot:
             self.read()
 
             seconds = settings.CRAIGSLIST_READ_DELAY + self.jitter
+            minutes = int(seconds / 60)
 
-            logger.info(f'Sleeping for {seconds} seconds.')
+            logger.info(f'Sleeping for {minutes} minutes.')
             sleep(seconds)
