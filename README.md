@@ -9,7 +9,7 @@ Create a new Slack [bot user](https://api.slack.com/bot-users). Retrieve your bo
 With Docker installed and running, start the bot:
 
 ```
-$ make
+$ make run
 ```
 
 If the image doesn't exist locally, Docker will pull it from [Docker Hub](https://hub.docker.com/r/rlucioni/craigbot/), create a container, and start it.

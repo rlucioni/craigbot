@@ -47,7 +47,7 @@ class Bot:
         except:
             logger.exception('There was a problem searching Craigslist.')
 
-            if craigslist.is_ip_banned():
+            if craigslist.is_ip_banned:
                 self.slack.post('Help! Craigslist has banned my IP.')
 
             return

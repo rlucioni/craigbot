@@ -1,7 +1,6 @@
 import logging
 from urllib.parse import quote_plus, urlencode
 
-import requests
 from selenium import webdriver
 from slackclient import SlackClient
 
@@ -39,10 +38,23 @@ class Craigslist:
             Boolean
         """
         logger.info('Checking for IP ban.')
-        response = requests.get('https://www.craigslist.org')
 
-        # Craigslist responds to requests from banned IPs with a 403.
-        return response.status_code == 403
+        craigslist_url = 'https://www.craigslist.org'
+        self.proxy(craigslist_url)
+
+        return 'blocked' in self.driver.page_source.lower()
+
+    def proxy(self, craigslist_url):
+        """
+        Proxy the given Craigslist URL through Google Translate.
+        """
+        quoted = quote_plus(craigslist_url)
+        url = f'https://translate.google.com/translate?hl=en&sl=es&tl=en&u={quoted}'
+
+        self.driver.get(url)
+
+        # Translated content is in an iframe named 'c'.
+        self.driver.switch_to.frame('c')
 
     def search(self):
         logger.info('Proxying Craigslist search through Google Translate.')
@@ -53,13 +65,7 @@ class Craigslist:
             querystring=querystring
         )
 
-        quoted = quote_plus(craigslist_url)
-        url = f'https://translate.google.com/translate?hl=en&sl=es&tl=en&u={quoted}'
-
-        self.driver.get(url)
-
-        # Translated content is in an iframe named 'c'.
-        self.driver.switch_to.frame('c')
+        self.proxy(craigslist_url)
 
         logger.info('Loaded proxied results.')
 
