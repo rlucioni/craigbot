@@ -30,7 +30,9 @@ RUN groupadd -r chrome && \
     useradd -r -g chrome -G audio,video chrome && \
     # Give the new user a home directory.
     mkdir -p /home/chrome && \
-    chown -R chrome:chrome /home/chrome
+    # Create a directory for the database file.
+    mkdir /var/db && \
+    chown -R chrome:chrome /home/chrome /var/db
 
 # Copying the requirements.txt file separately allows caching of packages installed via pip.
 COPY requirements.txt /src/

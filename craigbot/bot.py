@@ -71,12 +71,11 @@ class Bot:
 
                 self.share(result)
                 self.save(result)
-
-                count += 1
-
-                logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
             except:
                 logger.exception('There was a problem processing a result. Continuing.')
+            finally:
+                count += 1
+                logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
 
     def save(self, result):
         """

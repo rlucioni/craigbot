@@ -9,7 +9,7 @@ attach: ## Open a shell on a running craigbot container
 	docker exec -it craigbot /usr/bin/env bash
 
 debug: ## Run and attach to container for debugging
-	docker run -it --privileged --env-file .docker/env rlucioni/craigbot
+	docker run -it --privileged --env-file .docker/env -v craigbot_data:/var/db rlucioni/craigbot
 
 image: ## Build an rlucioni/craigbot image
 	docker build -t rlucioni/craigbot:latest .
@@ -24,10 +24,10 @@ pull: ## Update the rlucioni/craigbot image
 	docker pull rlucioni/craigbot
 
 run: ## Start a container derived from the rlucioni/craigbot image
-	docker run -d --privileged --name craigbot --env-file .docker/env --restart on-failure rlucioni/craigbot
+	docker run -d --privileged --name craigbot --env-file .docker/env -v craigbot_data:/var/db --restart on-failure rlucioni/craigbot
 
 shell: ## Open a shell on a new container
-	docker run -it --privileged rlucioni/craigbot:latest /usr/bin/env bash
+	docker run -it --privileged -v craigbot_data:/var/db rlucioni/craigbot:latest /usr/bin/env bash
 
 stop: ## Stop a running container
 	docker stop craigbot

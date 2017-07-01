@@ -16,7 +16,9 @@ class Result(Base):
     url = Column(String, unique=True)
 
 
-engine = create_engine('sqlite:///craigbot.db')
+# This directory is created by the Dockerfile. A corresponding data volume is
+# mounted at container run time.
+engine = create_engine('sqlite:////var/db/craigbot.db')
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)

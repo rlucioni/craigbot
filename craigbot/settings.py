@@ -8,7 +8,7 @@ class Condition(Enum):
     EXCELLENT = 30
 
 
-# Max number of new results to save from Craigslist each time the bot runs.
+# Max number of new results to skim from Craigslist each time the bot runs.
 CRAIGSLIST_RESULT_COUNT = int(os.environ.get('CRAIGSLIST_RESULT_COUNT', 20))
 
 # Seconds to sleep before checking for new listings.
