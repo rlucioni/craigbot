@@ -43,46 +43,47 @@ class Bot:
         craigslist = Craigslist()
 
         try:
-            results = craigslist.search()
-        except:
-            logger.exception('There was a problem searching Craigslist.')
+            try:
+                results = craigslist.search()
+            except:
+                logger.exception('There was a problem searching Craigslist.')
 
-            if craigslist.is_ip_banned:
-                self.slack.post('Help! Craigslist has banned my IP.')
+                if craigslist.is_ip_banned:
+                    self.slack.post('Help! Craigslist has banned my IP.')
+
+                return
+
+            # Craigslist seems to use pages of 120 results.
+            logger.info(f'Found {len(results)} results.')
+
+            count = 0
+            for result in results:
+                try:
+                    if count >= settings.CRAIGSLIST_RESULT_COUNT:
+                        break
+
+                    pid = result.get_attribute('data-pid')
+                    repost_pid = result.get_attribute('data-repost-of')
+                    detail_url = self.extract_url(result)
+
+                    if self.seen(pid) or self.seen(repost_pid):
+                        logger.info(f'Result at {detail_url} has already been seen. Skipping.')
+                        continue
+
+                    self.share(result)
+                    self.save(result)
+                except:
+                    logger.exception('There was a problem processing a result. Continuing.')
+                finally:
+                    count += 1
+
+                    if count <= settings.CRAIGSLIST_RESULT_COUNT:
+                        logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
+        finally:
+            logger.info('Quitting Chrome.')
 
             # Shut down the ChromeDriver executable.
             craigslist.driver.quit()
-
-            return
-
-        # Craigslist seems to use pages of 120 results.
-        logger.info(f'Found {len(results)} results.')
-
-        count = 0
-        for result in results:
-            try:
-                if count >= settings.CRAIGSLIST_RESULT_COUNT:
-                    break
-
-                pid = result.get_attribute('data-pid')
-                repost_pid = result.get_attribute('data-repost-of')
-                detail_url = self.extract_url(result)
-
-                if self.seen(pid) or self.seen(repost_pid):
-                    logger.info(f'Result at {detail_url} has already been seen. Skipping.')
-                    continue
-
-                self.share(result)
-                self.save(result)
-            except:
-                logger.exception('There was a problem processing a result. Continuing.')
-            finally:
-                count += 1
-
-                if count <= settings.CRAIGSLIST_RESULT_COUNT:
-                    logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
-
-        craigslist.driver.quit()
 
     def save(self, result):
         """

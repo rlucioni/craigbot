@@ -15,7 +15,7 @@ class Craigslist:
     Provides methods for interacting with a Craigslist result page.
     """
     def __init__(self):
-        logger.info('Initializing Chrome.')
+        logger.info('Starting Chrome.')
 
         options = webdriver.ChromeOptions()
         options.binary_location = '/usr/bin/google-chrome-stable'
@@ -26,8 +26,6 @@ class Craigslist:
 
         self.driver = webdriver.Chrome(chrome_options=options)
         self.driver.implicitly_wait(10)
-
-        logger.info('Chrome is running.')
 
     @property
     def is_ip_banned(self):
