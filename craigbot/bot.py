@@ -50,6 +50,9 @@ class Bot:
             if craigslist.is_ip_banned:
                 self.slack.post('Help! Craigslist has banned my IP.')
 
+            # Shut down the ChromeDriver executable.
+            craigslist.driver.quit()
+
             return
 
         # Craigslist seems to use pages of 120 results.
@@ -78,6 +81,8 @@ class Bot:
 
                 if count <= settings.CRAIGSLIST_RESULT_COUNT:
                     logger.info(f'Processed {count} of {settings.CRAIGSLIST_RESULT_COUNT} results.')
+
+        craigslist.driver.quit()
 
     def save(self, result):
         """

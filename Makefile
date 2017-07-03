@@ -23,6 +23,9 @@ prune: ## Delete stopped containers and dangling images
 pull: ## Update the rlucioni/craigbot image
 	docker pull rlucioni/craigbot
 
+push: ## Push the rlucioni/craigbot image to Docker Hub
+	docker push rlucioni/craigbot
+
 run: ## Start a container derived from the rlucioni/craigbot image
 	docker run -d --privileged --name craigbot --env-file .docker/env -v craigbot_data:/var/db --restart on-failure rlucioni/craigbot
 
