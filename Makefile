@@ -1,36 +1,40 @@
-.DEFAULT_GOAL := image
+.DEFAULT_GOAL := help
+.PHONY: requirements
+
+deploy: ## Package and deploy
+	zappa deploy prod
 
 # Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
 help: ## Display this help message
 	@echo "Please run \`make <target>\` where <target> is one of"
 	@perl -nle'print $& if m{^[\.a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
 
-attach: ## Open a shell on a running craigbot container
-	docker exec -it craigbot /usr/bin/env bash
+lint: ## Run flake8
+	flake8 craigbot.py
 
-debug: ## Run and attach to container for debugging
-	docker run -it --privileged --env-file .docker/env -v craigbot_data:/var/db rlucioni/craigbot
+package: ## Package app without deploying
+	zappa package prod
 
-image: ## Build an rlucioni/craigbot image
-	docker build -t rlucioni/craigbot:latest .
+requirements: ## Install requirements
+	pip install -r requirements.txt
 
-logs: ## Tail a running container's logs
-	docker logs -f craigbot
+rollback: ## Rollback code to previously deployed version
+	zappa rollback prod -n 1
 
-prune: ## Delete stopped containers and dangling images
-	docker system prune -f
+serve: ## Run the Flask app locally, without Lambda
+	FLASK_APP=craigbot.py FLASK_DEBUG=1 flask run
 
-pull: ## Update the rlucioni/craigbot image
-	docker pull rlucioni/craigbot
+status: ## View deployment status
+	zappa status prod
 
-push: ## Push the rlucioni/craigbot image to Docker Hub
-	docker push rlucioni/craigbot
+tail: ## Watch deployment logs for the last hour
+	zappa tail prod --since 1h
 
-run: ## Start a container derived from the rlucioni/craigbot image
-	docker run -d --privileged --name craigbot --env-file .docker/env -v craigbot_data:/var/db --restart on-failure rlucioni/craigbot
+tunnel: ## Use ngrok to expose a local server to the Internet
+	ngrok http 5000
 
-shell: ## Open a shell on a new container
-	docker run -it --privileged -v craigbot_data:/var/db rlucioni/craigbot:latest /usr/bin/env bash
+undeploy: ## Remove API Gateway routes, Lambda function, and CloudWatch logs
+	zappa undeploy prod --remove-logs
 
-stop: ## Stop a running container
-	docker stop craigbot
+update: ## Upload new Python code without touching API Gateway routes
+	zappa update prod

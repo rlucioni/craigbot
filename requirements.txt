@@ -1,4 +1,6 @@
-flake8==3.3.0
-selenium==3.4.3
-slackclient==1.0.6
-SQLAlchemy==1.1.11
+beautifulsoup4==4.6.0
+flake8==3.5.0
+flask==0.12.2
+requests==2.18.4
+slackclient==1.0.9
+zappa==0.44.3
